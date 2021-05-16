@@ -34,7 +34,7 @@ for j in range(len(json_data)):
                     r.raw.decode_content = True
 
                     # Open a local file with write binary permission.
-                    with open('./'+json_data[j]['id']+'/'+json_data[1]['id'] + '-' + str(i) + '.png', 'wb') as f:
+                    with open('./'+json_data[j]['id']+'/'+json_data[1]['id'] + '_' + str(i) + '.png', 'wb') as f:
                         for chunk in r:
                             f.write(chunk)
                 else:
