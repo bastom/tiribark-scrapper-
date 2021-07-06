@@ -1,7 +1,3 @@
-import matplotlib.pyplot as plt
-import numpy as np
-import os
-import PIL
 import tensorflow as tf
 
 from tensorflow import keras
@@ -9,8 +5,8 @@ from tensorflow.keras import layers
 from tensorflow.keras.models import Sequential
 import pathlib
 
-data_dir = pathlib.Path('./Man')
-test_dir = pathlib.Path('./Validation')
+data_dir = pathlib.Path('./Training')
+val_dir = pathlib.Path('./Validation')
 
 batch_size = 32
 img_height = 500
@@ -18,7 +14,7 @@ img_width = 500
 
 train_ds = tf.keras.preprocessing.image_dataset_from_directory(
   data_dir,
-  validation_split=0.1,
+  validation_split=0.35,
   subset="training",
   seed=123,
   image_size=(img_height, img_width),
@@ -27,8 +23,8 @@ train_ds = tf.keras.preprocessing.image_dataset_from_directory(
 class_names = train_ds.class_names
 
 val_ds = tf.keras.preprocessing.image_dataset_from_directory(
-  test_dir,
-  validation_split=0.1,
+  val_dir,
+  validation_split=0.35,
   subset="validation",
   seed=123,
   image_size=(img_height, img_width),
@@ -44,8 +40,6 @@ normalization_layer = layers.experimental.preprocessing.Rescaling(1./255)
 normalized_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
 image_batch, labels_batch = next(iter(normalized_ds))
 first_image = image_batch[0]
-print(np.min(first_image), np.max(first_image))
-
 
 #Data augmentation
 data_augmentation = keras.Sequential(
@@ -56,6 +50,7 @@ data_augmentation = keras.Sequential(
                                                               3)),
     layers.experimental.preprocessing.RandomRotation(0.1),
     layers.experimental.preprocessing.RandomZoom(0.1),
+    layers.experimental.preprocessing.RandomContrast(0.5),
   ]
 )
 
@@ -87,20 +82,5 @@ history = model.fit(
   epochs=epochs,
 )
 
-
-path = './Test/t4.png'
-img = keras.preprocessing.image.load_img(
-    path, target_size=(img_height, img_width)
-)
-img_array = keras.preprocessing.image.img_to_array(img)
-img_array = tf.expand_dims(img_array, 0) # Create a batch
-
-predictions = model.predict(img_array)
-score = tf.nn.softmax(predictions[0])
-
-print(
-    "This image most likely belongs to {} with a {:.2f} percent confidence."
-    .format(class_names[np.argmax(score)], 100 * np.max(score))
-)
 
 model.save('model')
