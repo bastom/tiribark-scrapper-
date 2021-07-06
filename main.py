@@ -4,7 +4,7 @@ import requests as requests
 from selenium import webdriver
 import time
 
-f = open('./woman.json', 'r')
+f = open('./man.json', 'r')
 json_data = json.loads(f.readlines()[0])
 
 driver = webdriver.Chrome("./chromedriver")
